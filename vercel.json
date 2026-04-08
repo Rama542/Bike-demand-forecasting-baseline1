@@ -1,6 +1,11 @@
 {
-  "cleanUrls": true,
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
+    {
+      "source": "/api/chat",
+      "destination": "/api/chat"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

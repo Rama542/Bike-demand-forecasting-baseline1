@@ -53,7 +53,8 @@ export default function AIAssistant() {
 
     try {
       const res = await sendChatMessage(query);
-      addChatMessage({ role: 'ai', content: res.answer, time: new Date().toLocaleTimeString() });
+      const content = res.answer || res.response || "I couldn't process that query.";
+      addChatMessage({ role: 'ai', content, time: new Date().toLocaleTimeString() });
     } catch {
       addChatMessage({ role: 'ai', content: "Sorry, I couldn't connect to the AI service. Make sure the backend is running.", time: new Date().toLocaleTimeString() });
     }

@@ -100,21 +100,41 @@ export const getPricing = async (stations) => {
 };
 
 export const sendChatMessage = async (query) => {
+  // Try Vercel serverless function first (works on production)
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return { answer: data.answer || data.response, source: data.source };
+    }
+  } catch {}
+
+  // Fallback: try the local Node.js backend
   try {
     const res = await api.post('/ai/chat', { query });
     return res.data;
   } catch {
-    // Fallback AI response
-    const responses = [
-      `Based on historical data, demand peaks at 8AM and 5PM. Current utilization is at 72%.`,
-      `MG Road station is critically low (8/30 bikes). Recommend immediate rebalancing from HSR Layout.`,
-      `Weekend demand typically drops 15% compared to weekdays. Dynamic pricing is adjusted accordingly.`,
-      `Electronic City shows consistent low demand. Consider reducing capacity by 5 bikes.`,
-    ];
-    return {
-      response: responses[Math.floor(Math.random() * responses.length)],
-      source: 'mock',
-    };
+    // Final fallback: smart context-aware mock responses
+    const q = query.toLowerCase();
+    let answer;
+    if (q.includes('rebalanc') || q.includes('move') || q.includes('where')) {
+      answer = '🔄 **Rebalancing Recommended:** Move 8 bikes from HSR Layout (58/60) to MG Road (8/30) immediately. Also transfer 4 bikes from Indiranagar to Electronic City (4/25) to prevent stock-out. Expected demand surge at Electronic City after 5PM.';
+    } else if (q.includes('pric') || q.includes('surge')) {
+      answer = '💰 **Pricing Intelligence:** Apply 1.4x surge at MG Road (low supply + high demand). Reduce to ₹12/ride at Electronic City to incentivize usage. Optimized pricing could increase daily revenue by ~18%.';
+    } else if (q.includes('demand') || q.includes('forecast') || q.includes('predict')) {
+      answer = '📈 **Demand Forecast:** Peak demand at 5PM-8PM today with ~530 rides/hour. Koramangala and Indiranagar will hit 85% capacity. ML model (ARIMA + XGBoost) predicts 4,200 total trips today based on clear weather and weekday pattern.';
+    } else if (q.includes('station') || q.includes('busiest')) {
+      answer = '🗺️ **Station Intelligence:** Indiranagar is busiest (35/40 bikes active). MG Road is critically low (8/30). Koramangala is well-balanced. HSR Layout near-full (58/60) and needs 6 bikes redistributed.';
+    } else if (q.includes('revenue') || q.includes('money')) {
+      answer = '💵 **Revenue Report:** ₹4,850 generated today from 312 rides (avg ₹15.5/ride). Hourly rate: ₹202. Weekly trend shows +12% growth. Projected monthly revenue at current rate: ₹1.45 Lakh.';
+    } else {
+      answer = '🤖 **VeloAI Analysis:** Fleet health is at 72% efficiency. Priority actions: (1) Restock MG Road urgently, (2) Apply surge pricing at high-demand stations, (3) Monitor HSR Layout near-capacity situation. Would you like specific recommendations?';
+    }
+    return { answer, source: 'mock' };
   }
 };
 
