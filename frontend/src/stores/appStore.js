@@ -50,7 +50,7 @@ export const useAppStore = create((set, get) => ({
   loadRevenue: async () => {
     try {
       const data = await fetchRevenue();
-      set({ revenue: data });
+      set({ revenue: data, liveRevenue: data });
     } catch (e) { console.error('Failed to load revenue', e); }
   },
 
@@ -114,5 +114,5 @@ export const useAppStore = create((set, get) => ({
   addChatMessage: (msg) => set((s) => ({ chatMessages: [...s.chatMessages, msg] })),
 
   // ─── Live Revenue ────────────────────────────────────────
-  liveRevenue: { daily: 0, hourly_rate: 0, rides_count: 0 },
+  liveRevenue: { daily: 4850, hourly_rate: 202, rides_count: 312 },
 }));
