@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Bike, MapPin, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
@@ -84,7 +85,10 @@ export default function Fleet() {
               style={{ height: '100%', width: '100%' }}
               zoomControl={false}
             >
-              <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" />
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              />
               {stations.map((st) => (
                 <CircleMarker
                   key={`st-${st.id}`}

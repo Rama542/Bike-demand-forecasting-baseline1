@@ -6,6 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export default function Dashboard() {
   const stations     = useAppStore((s) => s.stations);
@@ -179,7 +180,10 @@ export default function Dashboard() {
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
               >
-                <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" />
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
                 {stations.map((st) => {
                   const ratio = st.current_bikes / (st.capacity || 1);
                   const color = ratio < 0.2 ? '#f43f5e' : ratio > 0.8 ? '#fbbf24' : ratio > 0.5 ? '#34d399' : '#00F5FF';
