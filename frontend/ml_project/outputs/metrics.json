@@ -1,0 +1,6 @@
+{
+    "model": "moving_average",
+    "window_size": 3,
+    "mae": 916.7555555555556,
+    "rmse": 1093.348939590515
+}
