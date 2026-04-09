@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Map, BarChart3, Bot, Settings,
   Bike, ChevronLeft, ChevronRight, LogOut,
 } from 'lucide-react';
+import { UserButton, useClerk, useUser } from '@clerk/react';
 
 const navItems = [
   { path: '/',          label: 'Dashboard',   icon: LayoutDashboard, section: 'overview' },
@@ -25,8 +26,8 @@ export default function Sidebar() {
   const navigate  = useNavigate();
   const collapsed = useAppStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
-  const logout    = useAppStore((s) => s.logout);
-  const user      = useAppStore((s) => s.user);
+  const { signOut } = useClerk();
+  const { user } = useUser();
 
   return (
     <nav className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -133,7 +134,7 @@ export default function Sidebar() {
 
         <motion.button
           className="nav-item"
-          onClick={logout}
+          onClick={() => signOut({ redirectUrl: '/login' })}
           title="Sign out"
           style={{ color: 'var(--rose)' }}
           whileHover={{ x: 3 }}
@@ -144,23 +145,29 @@ export default function Sidebar() {
         </motion.button>
 
         <AnimatePresence>
-          {user && !collapsed && (
+          {!collapsed && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               style={{
-                padding: '8px 12px',
-                fontSize: '0.65rem',
+                marginTop: 16,
+                paddingLeft: 12,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: '0.8rem',
                 color: 'var(--text-muted)',
-                fontFamily: 'var(--font-mono)',
-                letterSpacing: '0.04em',
-                borderTop: '1px solid rgba(0,245,255,0.05)',
-                marginTop: 4,
               }}
             >
-              <span style={{ color: 'rgba(0,245,255,0.3)' }}>◈</span> {user.email}
+              <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
+              <span style={{ fontFamily: 'var(--font-mono)' }}>{user?.primaryEmailAddress?.emailAddress}</span>
             </motion.div>
+          )}
+          {collapsed && (
+             <motion.div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
+                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
+             </motion.div>
           )}
         </AnimatePresence>
       </div>

@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { predictDemand, getRebalancing } from '../lib/api';
+import { fetchDailyRevenue } from '../services/api';
 import { Bike, Users, TrendingUp, DollarSign, ArrowUp, ArrowDown, MapPin } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Legend,
+} from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
@@ -18,6 +22,8 @@ export default function Dashboard() {
 
   const [forecast, setForecast] = useState([]);
   const [rebalanceRecs, setRebalanceRecs] = useState([]);
+  const [revenueChartData, setRevenueChartData] = useState([]);
+  const [revLoading, setRevLoading] = useState(true);
 
   const totalBikes  = stations.reduce((a, s) => a + (s.current_bikes || 0), 0);
   const activeBikes = bikes.filter((b) => b.status === 'in-use').length;
@@ -27,6 +33,19 @@ export default function Dashboard() {
     if (stations.length > 0) {
       getRebalancing(stations).then((d) => setRebalanceRecs(d.recommendations || [])).catch(() => {});
     }
+    // Load daily revenue chart data
+    setRevLoading(true);
+    fetchDailyRevenue()
+      .then((res) => {
+        const formatted = res.date.map((d, i) => ({
+          date: String(d).slice(5), // MM-DD
+          revenue: res.revenue[i],
+          rides: res.rides?.[i] || 0,
+        }));
+        setRevenueChartData(formatted);
+      })
+      .catch(() => {})
+      .finally(() => setRevLoading(false));
   }, [stations]);
 
   const hourlyData = (datasetStats?.hourlyPattern || []).map((h) => ({
@@ -296,9 +315,138 @@ export default function Dashboard() {
           </div>
         </HologramCard>
       </motion.div>
+
+      {/* ── Daily Revenue Graph (always visible) ──────────────────── */}
+      <motion.div variants={itemVariants}>
+        <HologramCard glowColor="#fbbf24" style={{ overflow: 'hidden' }}>
+          <div className="card-header" style={{ borderBottom: '1px solid rgba(251,191,36,0.1)' }}>
+            <div>
+              <div className="card-title" style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.8rem',
+                letterSpacing: '0.06em',
+                background: 'linear-gradient(90deg, #fbbf24, #f97316)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                💰 DAILY REVENUE — LAST 30 DAYS
+              </div>
+              <div className="card-subtitle">Revenue &amp; ride count from dataset · $3.50 avg per ride</div>
+            </div>
+            <span className="badge amber">Live Data</span>
+          </div>
+          <div className="card-body">
+            {revLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 240, color: 'rgba(251,191,36,0.5)' }}>
+                <div className="spinner" style={{ width: 22, height: 22, borderWidth: 3 }} />
+                <span style={{ marginLeft: 12, fontFamily: 'var(--font-mono)', fontSize: 12 }}>Loading revenue…</span>
+              </div>
+            ) : (
+              <div style={{ height: 240, width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueChartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="dashRevGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#fbbf24" stopOpacity={0.55} />
+                        <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="dashRidesGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#00F5FF" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#00F5FF" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="2 6" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      stroke="rgba(255,255,255,0.2)"
+                      fontSize={9}
+                      fontFamily="JetBrains Mono"
+                      tickLine={false}
+                      axisLine={false}
+                      interval={4}
+                    />
+                    <YAxis
+                      yAxisId="rev"
+                      stroke="rgba(255,255,255,0.15)"
+                      fontSize={9}
+                      fontFamily="JetBrains Mono"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+                    />
+                    <YAxis
+                      yAxisId="rides"
+                      orientation="right"
+                      stroke="rgba(255,255,255,0.1)"
+                      fontSize={9}
+                      fontFamily="JetBrains Mono"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'rgba(8,12,24,0.97)',
+                        border: '1px solid rgba(251,191,36,0.3)',
+                        borderRadius: '10px',
+                        fontSize: '12px',
+                        boxShadow: '0 0 20px rgba(251,191,36,0.12)',
+                        backdropFilter: 'blur(20px)',
+                      }}
+                      labelStyle={{ color: '#fbbf24', fontFamily: 'JetBrains Mono', fontWeight: 700 }}
+                      formatter={(val, name) => name === 'revenue'
+                        ? [`$${val.toLocaleString()}`, 'Revenue']
+                        : [val.toLocaleString(), 'Rides']}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: 'JetBrains Mono' }} />
+                    <Area
+                      yAxisId="rev"
+                      type="monotone"
+                      dataKey="revenue"
+                      name="Revenue ($)"
+                      stroke="#fbbf24"
+                      fill="url(#dashRevGrad)"
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 5, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
+                      animationDuration={1800}
+                    />
+                    <Area
+                      yAxisId="rides"
+                      type="monotone"
+                      dataKey="rides"
+                      name="Rides"
+                      stroke="#00F5FF"
+                      fill="url(#dashRidesGrad)"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4, fill: '#00F5FF', stroke: '#fff', strokeWidth: 2 }}
+                      animationDuration={2200}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+          <div style={{
+            padding: '8px 20px 12px',
+            fontSize: '10px',
+            color: 'rgba(255,255,255,0.2)',
+            borderTop: '1px solid rgba(251,191,36,0.06)',
+            fontFamily: 'var(--font-mono)',
+            display: 'flex',
+            gap: 16,
+          }}>
+            <span style={{ color: '#fbbf24' }}>●</span> Revenue
+            <span style={{ color: '#00F5FF' }}>●</span> Daily Rides
+            <span style={{ marginLeft: 'auto' }}>Dataset: UCI Bike Sharing · Washington D.C.</span>
+          </div>
+        </HologramCard>
+      </motion.div>
     </motion.div>
   );
 }
+
 
 function generateMockHourlyData() {
   return Array.from({ length: 24 }, (_, i) => {

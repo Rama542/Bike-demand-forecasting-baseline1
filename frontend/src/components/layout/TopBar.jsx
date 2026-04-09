@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../stores/appStore';
+import { UserButton } from '@clerk/react';
 import { Bell, Sun, Cloud, CloudRain, Zap } from 'lucide-react';
 
 const weatherIcons = { clear: Sun, cloudy: Cloud, rain: CloudRain };
@@ -148,13 +149,9 @@ export default function TopBar() {
         </div>
 
         {/* Avatar */}
-        <motion.div
-          className="avatar"
-          whileHover={{ scale: 1.08, boxShadow: '0 0 18px rgba(0,245,255,0.3)' }}
-          title={user?.email}
-        >
-          {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'V'}
-        </motion.div>
+        <div style={{ marginLeft: 8 }}>
+          <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 34, height: 34 } } }} />
+        </div>
       </div>
     </div>
   );

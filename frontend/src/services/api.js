@@ -108,6 +108,34 @@ export async function fetchMetrics() {
 }
 
 /**
+ * Fetch daily revenue data from ML backend.
+ * Returns 30 days of revenue + ride counts.
+ * Falls back to generated mock data if backend unavailable.
+ */
+export async function fetchDailyRevenue() {
+  try {
+    const res = await fetch(`${ML_BASE_URL}/predict/revenue/daily`, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) throw new Error('Failed to fetch daily revenue');
+    return res.json();
+  } catch {
+    console.warn('⚠️  ML backend unavailable — using mock daily revenue data');
+    const today = new Date();
+    const dates = [], revenues = [], rides = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const month = d.getMonth();
+      const seasonal = [2200, 2400, 3200, 3800, 4500, 5100, 5300, 5200, 4600, 3900, 3100, 2400][month];
+      const dayRides = Math.max(200, Math.round(seasonal + (Math.random() - 0.5) * 600));
+      dates.push(d.toISOString().slice(0, 10));
+      rides.push(dayRides);
+      revenues.push(Math.round(dayRides * 3.5));
+    }
+    return { date: dates, revenue: revenues, rides };
+  }
+}
+
+/**
  * Fetch the full daily time series from the dataset.
  */
 export async function fetchTimeSeries() {

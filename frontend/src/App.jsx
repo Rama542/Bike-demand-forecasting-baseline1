@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from './stores/appStore';
+import { useAuth } from '@clerk/react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import IntroSequence from './components/IntroSequence';
@@ -13,8 +14,9 @@ const AIAssistant = lazy(() => import('./pages/AIAssistant'));
 const Settings    = lazy(() => import('./pages/Settings'));
 
 function ProtectedRoute({ children }) {
-  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const { isLoaded, userId } = useAuth();
+  if (!isLoaded) return <Loading />;
+  if (!userId) return <Navigate to="/login" replace />;
   return <MainLayout>{children}</MainLayout>;
 }
 
