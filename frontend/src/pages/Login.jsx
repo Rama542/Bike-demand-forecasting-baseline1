@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SignIn } from '@clerk/react';
-import { Bike, ArrowRight } from 'lucide-react';
+import { SignIn, SignUp } from '@clerk/react';
+import { Bike } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BikeRouteAnimation from '../components/auth-map/BikeRouteAnimation';
 import ParticleBackground from '../components/ParticleBackground';
@@ -56,6 +55,8 @@ function Counter({ value, label }) {
 }
 
 export default function Login() {
+  const [isSignup, setIsSignup] = useState(false);
+
   return (
     <div className="login-page">
       <ParticleBackground />
@@ -126,28 +127,56 @@ export default function Login() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, width: '100%' }}>
-            <SignIn 
-              appearance={{
-                variables: {
-                  colorPrimary: '#00F5FF',
-                  colorBackground: 'rgba(8,12,24,0.1)',
-                  colorText: '#ffffff',
-                  colorTextSecondary: 'rgba(255,255,255,0.6)',
-                  colorInputBackground: 'rgba(255,255,255,0.05)',
-                  colorInputBorder: 'rgba(0,245,255,0.2)',
-                  fontFamily: 'var(--font-mono)'
-                },
-                elements: {
-                  card: {
-                    boxShadow: 'none',
-                    background: 'transparent',
+            {isSignup ? (
+              <SignUp 
+                appearance={{
+                  variables: {
+                    colorPrimary: '#00F5FF',
+                    colorBackground: 'rgba(8,12,24,0.1)',
+                    colorText: '#ffffff',
+                    colorTextSecondary: 'rgba(255,255,255,0.6)',
+                    colorInputBackground: 'rgba(255,255,255,0.05)',
+                    colorInputBorder: 'rgba(0,245,255,0.2)',
+                    fontFamily: 'var(--font-mono)'
                   },
-                  headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
-                  socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
-                }
-              }}
-              routing="hash"
-            />
+                  elements: {
+                    card: { boxShadow: 'none', background: 'transparent' },
+                    headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
+                    socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
+                  }
+                }}
+                routing="hash"
+              />
+            ) : (
+              <SignIn 
+                appearance={{
+                  variables: {
+                    colorPrimary: '#00F5FF',
+                    colorBackground: 'rgba(8,12,24,0.1)',
+                    colorText: '#ffffff',
+                    colorTextSecondary: 'rgba(255,255,255,0.6)',
+                    colorInputBackground: 'rgba(255,255,255,0.05)',
+                    colorInputBorder: 'rgba(0,245,255,0.2)',
+                    fontFamily: 'var(--font-mono)'
+                  },
+                  elements: {
+                    card: { boxShadow: 'none', background: 'transparent' },
+                    headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
+                    socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
+                  }
+                }}
+                routing="hash"
+              />
+            )}
+          </div>
+          
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button 
+              onClick={() => setIsSignup(!isSignup)} 
+              style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}
+            >
+              {isSignup ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
           </div>
         </motion.div>
       </div>

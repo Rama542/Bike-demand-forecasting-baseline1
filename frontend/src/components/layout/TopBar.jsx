@@ -23,7 +23,6 @@ function HUDClock() {
 export default function TopBar() {
   const alerts  = useAppStore((s) => s.alerts);
   const weather = useAppStore((s) => s.weather);
-  const user    = useAppStore((s) => s.user);
   const [showNotif, setShowNotif] = useState(false);
 
   const unreadCount = alerts.filter((a) => !a.read).length;

@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from './stores/appStore';
 import { useAuth } from '@clerk/react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
