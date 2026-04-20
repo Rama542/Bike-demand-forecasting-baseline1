@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Map, BarChart3, Bot, Settings,
   Bike, ChevronLeft, ChevronRight, LogOut,
 } from 'lucide-react';
-import { UserButton, useClerk, useUser } from '@clerk/react';
+import { UserButton, useClerk, useUser } from '@clerk/clerk-react';
 
 const navItems = [
   { path: '/',          label: 'Dashboard',   icon: LayoutDashboard, section: 'overview' },

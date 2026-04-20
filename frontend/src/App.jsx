@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@clerk/clerk-react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import IntroSequence from './components/IntroSequence';
@@ -19,6 +19,13 @@ function ProtectedRoute({ children }) {
   return <MainLayout>{children}</MainLayout>;
 }
 
+function PublicRoute({ children }) {
+  const { isLoaded, userId } = useAuth();
+  if (!isLoaded) return <Loading />;
+  if (userId) return <Navigate to="/" replace />;
+  return children;
+}
+
 function Loading() {
   return (
     <div className="loading-overlay">
@@ -33,16 +40,12 @@ function Loading() {
 }
 
 export default function App() {
-  // Check if intro was already shown this session (handles page refresh)
-  const alreadyShown = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('velo_intro_done');
-  const [introComplete, setIntroComplete] = useState(!!alreadyShown);
+  // Bypass intro sequence to fix WebGL infinite loading crashes
+  const [introComplete, setIntroComplete] = useState(true);
 
   return (
     <>
-      {/* Intro sequence — shown once per session */}
-      {!introComplete && (
-        <IntroSequence onComplete={() => setIntroComplete(true)} />
-      )}
+      {/* Intro sequence bypassed */}
 
       {/* Main app — fades in after intro completes */}
       <AnimatePresence>
@@ -58,7 +61,11 @@ export default function App() {
               <Routes>
                 <Route
                   path="/login"
-                  element={<Login />}
+                  element={<PublicRoute><Login /></PublicRoute>}
+                />
+                <Route
+                  path="/sign-up"
+                  element={<PublicRoute><Login isSignUp /></PublicRoute>}
                 />
                 <Route path="/"          element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/fleet"     element={<ProtectedRoute><Fleet /></ProtectedRoute>} />

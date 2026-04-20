@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../stores/appStore';
-import { UserButton } from '@clerk/react';
+import { UserButton } from '@clerk/clerk-react';
 import { Bell, Sun, Cloud, CloudRain, Zap } from 'lucide-react';
 
 const weatherIcons = { clear: Sun, cloudy: Cloud, rain: CloudRain };

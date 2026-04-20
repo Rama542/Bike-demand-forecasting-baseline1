@@ -1,9 +1,28 @@
-import { useState, useEffect } from 'react';
-import { SignIn, SignUp } from '@clerk/react';
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { SignIn, SignUp } from '@clerk/clerk-react';
 import { Bike } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BikeRouteAnimation from '../components/auth-map/BikeRouteAnimation';
 import ParticleBackground from '../components/ParticleBackground';
+
+// Lazy-load the heavy map animation so it never blocks the auth form
+const BikeRouteAnimation = lazy(() => import('../components/auth-map/BikeRouteAnimation'));
+
+// Fallback dark map shown instantly while tiles load
+function MapFallback() {
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      background: 'radial-gradient(ellipse at 30% 60%, rgba(0,245,255,0.08) 0%, #0A0F1C 70%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <div style={{
+        width: 60, height: 60, border: '2px solid rgba(0,245,255,0.3)',
+        borderTop: '2px solid #00F5FF', borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }} />
+    </div>
+  );
+}
 
 // Simple counter animation component
 function Counter({ value, label }) {
@@ -54,8 +73,7 @@ function Counter({ value, label }) {
   );
 }
 
-export default function Login() {
-  const [isSignup, setIsSignup] = useState(false);
+export default function Login({ isSignUp = false }) {
 
   return (
     <div className="login-page">
@@ -64,7 +82,9 @@ export default function Login() {
       {/* Left Hero */}
       <div className="login-hero">
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, borderRadius: '24px', overflow: 'hidden' }}>
-          <BikeRouteAnimation />
+          <Suspense fallback={<MapFallback />}>
+            <BikeRouteAnimation />
+          </Suspense>
         </div>
         <div className="login-hero-bg" />
         <motion.div
@@ -127,56 +147,51 @@ export default function Login() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, width: '100%' }}>
-            {isSignup ? (
-              <SignUp 
-                appearance={{
-                  variables: {
-                    colorPrimary: '#00F5FF',
-                    colorBackground: 'rgba(8,12,24,0.1)',
-                    colorText: '#ffffff',
-                    colorTextSecondary: 'rgba(255,255,255,0.6)',
-                    colorInputBackground: 'rgba(255,255,255,0.05)',
-                    colorInputBorder: 'rgba(0,245,255,0.2)',
-                    fontFamily: 'var(--font-mono)'
-                  },
-                  elements: {
-                    card: { boxShadow: 'none', background: 'transparent' },
-                    headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
-                    socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
-                  }
-                }}
-                routing="hash"
-              />
-            ) : (
-              <SignIn 
-                appearance={{
-                  variables: {
-                    colorPrimary: '#00F5FF',
-                    colorBackground: 'rgba(8,12,24,0.1)',
-                    colorText: '#ffffff',
-                    colorTextSecondary: 'rgba(255,255,255,0.6)',
-                    colorInputBackground: 'rgba(255,255,255,0.05)',
-                    colorInputBorder: 'rgba(0,245,255,0.2)',
-                    fontFamily: 'var(--font-mono)'
-                  },
-                  elements: {
-                    card: { boxShadow: 'none', background: 'transparent' },
-                    headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
-                    socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
-                  }
-                }}
-                routing="hash"
-              />
-            )}
-          </div>
-          
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <button 
-              onClick={() => setIsSignup(!isSignup)} 
-              style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}
-            >
-              {isSignup ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-            </button>
+              {isSignUp ? (
+                <SignUp
+                  fallbackRedirectUrl="/"
+                  signInFallbackRedirectUrl="/"
+                  signInUrl="/login"
+                  appearance={{
+                    variables: {
+                      colorPrimary: '#00F5FF',
+                      colorBackground: 'rgba(8,12,24,0.1)',
+                      colorText: '#ffffff',
+                      colorTextSecondary: 'rgba(255,255,255,0.6)',
+                      colorInputBackground: 'rgba(255,255,255,0.05)',
+                      colorInputBorder: 'rgba(0,245,255,0.2)',
+                      fontFamily: 'var(--font-mono)'
+                    },
+                    elements: {
+                      card: { boxShadow: 'none', background: 'transparent' },
+                      headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
+                      socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
+                    }
+                  }}
+                />
+              ) : (
+                <SignIn
+                  fallbackRedirectUrl="/"
+                  signUpFallbackRedirectUrl="/"
+                  signUpUrl="/sign-up"
+                  appearance={{
+                    variables: {
+                      colorPrimary: '#00F5FF',
+                      colorBackground: 'rgba(8,12,24,0.1)',
+                      colorText: '#ffffff',
+                      colorTextSecondary: 'rgba(255,255,255,0.6)',
+                      colorInputBackground: 'rgba(255,255,255,0.05)',
+                      colorInputBorder: 'rgba(0,245,255,0.2)',
+                      fontFamily: 'var(--font-mono)'
+                    },
+                    elements: {
+                      card: { boxShadow: 'none', background: 'transparent' },
+                      headerTitle: { fontFamily: 'var(--font-display)', letterSpacing: '0.1em' },
+                      socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' }
+                    }
+                  }}
+                />
+              )}
           </div>
         </motion.div>
       </div>
