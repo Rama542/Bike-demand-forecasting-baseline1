@@ -5,8 +5,7 @@ import App from './App';
 import './index.css';
 import { ClerkProvider } from '@clerk/clerk-react';
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-  || 'pk_test_ZGVmaW5pdGUtYmF0LTQ3LmNsZXJrLmFjY291bnRzLmRldg$';
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "pk_test_cmFyZS1kZWVyLTUzLmNsZXJrLmFjY291bnRzLmRldiQ";
 
 // Error boundary to catch Clerk crashes and still render the app
 class ClerkErrorBoundary extends Component {
