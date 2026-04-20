@@ -11,6 +11,21 @@ const Analytics   = lazy(() => import('./pages/Analytics'));
 const AIAssistant = lazy(() => import('./pages/AIAssistant'));
 const Settings    = lazy(() => import('./pages/Settings'));
 
+function Loading() {
+  return (
+    <div className="loading-overlay">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <div className="spinner" />
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--cyan)', letterSpacing: '0.3em', opacity: 0.7 }}>
+          LOADING
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Route guards when Clerk IS available ─────────────────────────────────────
+
 function ProtectedRoute({ children }) {
   const { isLoaded, userId } = useAuth();
   if (!isLoaded) return <Loading />;
@@ -25,58 +40,51 @@ function PublicRoute({ children }) {
   return children;
 }
 
-function Loading() {
-  return (
-    <div className="loading-overlay">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <div className="spinner" />
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--cyan)', letterSpacing: '0.3em', opacity: 0.7 }}>
-          LOADING
-        </span>
-      </div>
-    </div>
-  );
+// ── Route guards when Clerk FAILED (no ClerkProvider in tree) ────────────────
+// Never touch useAuth() here — no provider means hook would throw.
+
+function ProtectedRouteNoClerk() {
+  // Clerk is down → treat as not logged-in → force /login
+  return <Navigate to="/login" replace />;
 }
 
-export default function App() {
-  // Bypass intro sequence to fix WebGL infinite loading crashes
-  const [introComplete, setIntroComplete] = useState(true);
+function PublicRouteNoClerk({ children }) {
+  return children; // Show the public page (login/signup) freely
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+
+export default function App({ clerkFailed = false }) {
+  const [introComplete] = useState(true);
+
+  // Choose the right guard set based on whether Clerk initialised
+  const Protected = clerkFailed ? ProtectedRouteNoClerk : ProtectedRoute;
+  const Public    = clerkFailed ? PublicRouteNoClerk    : PublicRoute;
 
   return (
-    <>
-      {/* Intro sequence bypassed */}
-
-      {/* Main app — fades in after intro completes */}
-      <AnimatePresence>
-        {introComplete && (
-          <motion.div
-            key="app-content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            style={{ width: '100%', height: '100%' }}
-          >
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                <Route
-                  path="/login"
-                  element={<PublicRoute><Login /></PublicRoute>}
-                />
-                <Route
-                  path="/sign-up"
-                  element={<PublicRoute><Login isSignUp /></PublicRoute>}
-                />
-                <Route path="/"          element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/fleet"     element={<ProtectedRoute><Fleet /></ProtectedRoute>} />
-                <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-                <Route path="/ai"        element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
-                <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                <Route path="*"          element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <AnimatePresence>
+      {introComplete && (
+        <motion.div
+          key="app-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              <Route path="/login"    element={<Public><Login /></Public>} />
+              <Route path="/sign-up"  element={<Public><Login isSignUp /></Public>} />
+              <Route path="/"          element={<Protected><Dashboard /></Protected>} />
+              <Route path="/fleet"     element={<Protected><Fleet /></Protected>} />
+              <Route path="/analytics" element={<Protected><Analytics /></Protected>} />
+              <Route path="/ai"        element={<Protected><AIAssistant /></Protected>} />
+              <Route path="/settings"  element={<Protected><Settings /></Protected>} />
+              <Route path="*"          element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Suspense>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
