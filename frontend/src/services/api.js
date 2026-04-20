@@ -4,7 +4,7 @@
  * Falls back to realistic mock data when the ML backend is unavailable (e.g. Vercel).
  */
 
-const ML_BASE_URL = import.meta.env.VITE_ML_API_URL || 'http://localhost:5000';
+const ML_BASE_URL = import.meta.env.VITE_ML_API_URL || 'http://localhost:8000';
 
 // ─── Mock Data Generators ─────────────────────────────────────────────────────
 // Based on real UCI Bike Sharing Dataset patterns (2011-2012, Washington D.C.)
@@ -140,7 +140,7 @@ export async function fetchDailyRevenue() {
  */
 export async function fetchTimeSeries() {
   try {
-    const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     const res = await fetch(`${BASE_URL}/data/timeseries`, { signal: AbortSignal.timeout(4000) });
     if (!res.ok) throw new Error(`API error ${res.status}`);
     return res.json();

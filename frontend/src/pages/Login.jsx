@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { SignIn, SignUp } from '@clerk/clerk-react';
 import { Bike } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ParticleBackground from '../components/ParticleBackground';
 
 // Lazy-load the heavy map animation so it never blocks the auth form

@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
-import IntroSequence from './components/IntroSequence';
 
 const Dashboard   = lazy(() => import('./pages/Dashboard'));
 const Fleet       = lazy(() => import('./pages/Fleet'));

@@ -222,10 +222,10 @@ def get_heatmap():
 def health():
     return {
         "status":  "ok",
-        "message": "Bike Demand Forecasting API is running on port 5000 🚲",
+        "message": "Bike Demand Forecasting API is running on port 8000 🚲",
         "endpoints": ["/health", "/predict/daily", "/predict/weekly"]
     }
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
