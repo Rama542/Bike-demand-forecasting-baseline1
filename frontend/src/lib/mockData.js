@@ -74,10 +74,10 @@ export const MOCK_FORECAST = {
 
 export const MOCK_REBALANCING = {
   recommendations: [
-    { action: 'Move bikes: Electronic City → Whitefield',  amount: 8, priority: 'high'   },
-    { action: 'Move bikes: HSR Layout → Koramangala',      amount: 6, priority: 'medium' },
-    { action: 'Move bikes: Indiranagar → Whitefield',      amount: 4, priority: 'medium' },
-    { action: 'Deploy maintenance crew to E-City',         amount: 2, priority: 'high'   },
+    { action: 'Move bikes: HSR Layout → Electronic City',  amount: 12, priority: 'high'   },
+    { action: 'Move bikes: Indiranagar → Whitefield',      amount: 8,  priority: 'medium' },
+    { action: 'Move bikes: HSR Layout → Koramangala',      amount: 6,  priority: 'medium' },
+    { action: 'Deploy maintenance crew to E-City',         amount: 2,  priority: 'high'   },
   ],
 };
 
