@@ -134,7 +134,7 @@ function DailyRevenueChart() {
             />
             <Tooltip
               {...TOOLTIP_STYLE}
-              formatter={(val, name) => name === 'revenue' ? [`$${val.toLocaleString()}`, 'Revenue'] : [val.toLocaleString(), 'Rides']}
+              formatter={(val, name) => name === 'Revenue ($)' ? [`$${val.toLocaleString()}`, 'Revenue'] : [val.toLocaleString(), 'Rides']}
             />
             <Legend
               wrapperStyle={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'JetBrains Mono' }}

@@ -394,7 +394,7 @@ export default function Dashboard() {
                         backdropFilter: 'blur(20px)',
                       }}
                       labelStyle={{ color: '#fbbf24', fontFamily: 'JetBrains Mono', fontWeight: 700 }}
-                      formatter={(val, name) => name === 'revenue'
+                      formatter={(val, name) => name === 'Revenue ($)'
                         ? [`$${val.toLocaleString()}`, 'Revenue']
                         : [val.toLocaleString(), 'Rides']}
                     />
