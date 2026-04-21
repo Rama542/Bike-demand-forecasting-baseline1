@@ -2,14 +2,14 @@
 // Used as fallback when the Node.js backend is unreachable (e.g., Vercel deploy).
 
 export const MOCK_STATIONS = [
-  { id: 1,  name: 'MG Road',         lat: 12.9758, lng: 77.6082, current_bikes: 8,  capacity: 30, status: 'low' },
-  { id: 2,  name: 'Koramangala',     lat: 12.9352, lng: 77.6245, current_bikes: 22, capacity: 40, status: 'ok' },
+  { id: 1,  name: 'MG Road',         lat: 12.9758, lng: 77.6082, current_bikes: 24, capacity: 30, status: 'ok'   },
+  { id: 2,  name: 'Koramangala',     lat: 12.9352, lng: 77.6245, current_bikes: 22, capacity: 40, status: 'ok'   },
   { id: 3,  name: 'Indiranagar',     lat: 12.9784, lng: 77.6408, current_bikes: 35, capacity: 40, status: 'high' },
   { id: 4,  name: 'HSR Layout',      lat: 12.9063, lng: 77.6383, current_bikes: 58, capacity: 60, status: 'high' },
-  { id: 5,  name: 'Whitefield',      lat: 12.9698, lng: 77.7499, current_bikes: 15, capacity: 35, status: 'ok' },
-  { id: 6,  name: 'Electronic City', lat: 12.8399, lng: 77.6770, current_bikes: 4,  capacity: 25, status: 'low' },
-  { id: 7,  name: 'Jayanagar',       lat: 12.9299, lng: 77.5939, current_bikes: 19, capacity: 30, status: 'ok' },
-  { id: 8,  name: 'Hebbal',          lat: 13.0353, lng: 77.5975, current_bikes: 27, capacity: 35, status: 'ok' },
+  { id: 5,  name: 'Whitefield',      lat: 12.9698, lng: 77.7499, current_bikes: 15, capacity: 35, status: 'ok'   },
+  { id: 6,  name: 'Electronic City', lat: 12.8399, lng: 77.6770, current_bikes: 4,  capacity: 25, status: 'low'  },
+  { id: 7,  name: 'Jayanagar',       lat: 12.9299, lng: 77.5939, current_bikes: 19, capacity: 30, status: 'ok'   },
+  { id: 8,  name: 'Hebbal',          lat: 13.0353, lng: 77.5975, current_bikes: 27, capacity: 35, status: 'ok'   },
 ];
 
 export const MOCK_BIKES = Array.from({ length: 120 }, (_, i) => {
@@ -74,17 +74,22 @@ export const MOCK_FORECAST = {
 
 export const MOCK_REBALANCING = {
   recommendations: [
-    { action: 'Move bikes: Electronic City → MG Road', amount: 8,  priority: 'high' },
-    { action: 'Move bikes: HSR Layout → Koramangala',  amount: 6,  priority: 'medium' },
-    { action: 'Move bikes: Indiranagar → Whitefield',  amount: 4,  priority: 'medium' },
-    { action: 'Deploy maintenance crew to E-City',     amount: 2,  priority: 'high' },
+    { action: 'Move bikes: Electronic City → Whitefield',  amount: 8, priority: 'high'   },
+    { action: 'Move bikes: HSR Layout → Koramangala',      amount: 6, priority: 'medium' },
+    { action: 'Move bikes: Indiranagar → Whitefield',      amount: 4, priority: 'medium' },
+    { action: 'Deploy maintenance crew to E-City',         amount: 2, priority: 'high'   },
   ],
 };
 
 export const MOCK_PRICING = {
-  recommendations: [
-    { station: 'MG Road',         price: 25, surge: 1.4, reason: 'High demand, low supply' },
-    { station: 'Koramangala',     price: 18, surge: 1.0, reason: 'Balanced' },
-    { station: 'Electronic City', price: 12, surge: 0.8, reason: 'Incentivise usage' },
+  pricing: [
+    { station_id: 1, name: 'MG Road Hub',         capacity: 30, current_bikes: 24, multiplier: 0.90, suggestion: 'Discount -10%',  reason: 'Abundant supply · incentivise more rides',           severity: 'info',     demand: 22 },
+    { station_id: 2, name: 'Koramangala Node',    capacity: 40, current_bikes: 12, multiplier: 1.15, suggestion: 'Surge +15%',     reason: 'High demand zone · limited availability',            severity: 'warning',  demand: 78 },
+    { station_id: 3, name: 'Indiranagar Stop',    capacity: 40, current_bikes: 20, multiplier: 1.00, suggestion: 'Standard',        reason: 'Balanced supply and demand',                         severity: 'ok',       demand: 55 },
+    { station_id: 4, name: 'HSR Layout',          capacity: 60, current_bikes: 52, multiplier: 0.85, suggestion: 'Discount -15%',  reason: 'Excess supply · encourage rentals',                  severity: 'info',     demand: 20 },
+    { station_id: 5, name: 'Whitefield East',     capacity: 35, current_bikes: 6,  multiplier: 1.20, suggestion: 'Surge +20%',     reason: 'Tech park commute hour · high demand',               severity: 'warning',  demand: 83 },
+    { station_id: 6, name: 'Jayanagar Metro',     capacity: 30, current_bikes: 18, multiplier: 0.90, suggestion: 'Discount -10%',  reason: 'Low demand · idle bikes',                            severity: 'info',     demand: 15 },
+    { station_id: 7, name: 'Electronic City',     capacity: 25, current_bikes: 3,  multiplier: 1.25, suggestion: 'Surge +25%',     reason: 'Critical shortage · rebalancing needed urgently',    severity: 'critical', demand: 96 },
+    { station_id: 8, name: 'Hebbal Junction',     capacity: 35, current_bikes: 22, multiplier: 1.00, suggestion: 'Standard',        reason: 'Normal operating conditions',                        severity: 'ok',       demand: 48 },
   ],
 };

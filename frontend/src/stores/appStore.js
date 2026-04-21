@@ -102,10 +102,10 @@ export const useAppStore = create((set, get) => ({
 
   // ─── Alerts ──────────────────────────────────────────────
   alerts: [
-    { id: '1', message: '⚠️ Low inventory at MG Road (5/30)', type: 'warning', time: '12:05 PM', read: false },
-    { id: '2', message: '📦 HSR Layout nearly full (58/60)', type: 'info', time: '12:03 PM', read: false },
-    { id: '3', message: '🚨 Demand spike detected near Koramangala', type: 'critical', time: '11:58 AM', read: false },
-    { id: '4', message: '✅ Rebalancing complete: Indiranagar', type: 'success', time: '11:45 AM', read: true },
+    { id: '1', message: '🚨 Electronic City critically low (4/25)', type: 'critical', time: '12:05 PM', read: false },
+    { id: '2', message: '📦 HSR Layout nearly full (58/60)',          type: 'info',     time: '12:03 PM', read: false },
+    { id: '3', message: '🚨 Demand spike detected near Koramangala',  type: 'critical', time: '11:58 AM', read: false },
+    { id: '4', message: '✅ Rebalancing complete: Indiranagar',        type: 'success',  time: '11:45 AM', read: true  },
   ],
   addAlert: (alert) => set((s) => ({ alerts: [alert, ...s.alerts].slice(0, 50) })),
 
