@@ -394,14 +394,37 @@ export default function Analytics() {
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>Calculating optimal prices…</span>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
                   {pricing.map((p, idx) => {
                     const isSurge    = p.multiplier > 1;
                     const isDiscount = p.multiplier < 1;
-                    const accentColor = p.severity === 'critical' ? '#f43f5e' : p.severity === 'warning' ? '#fbbf24' : p.severity === 'ok' ? '#34d399' : '#00F5FF';
-                    const basePrice = 299;
+
+                    // Color by severity
+                    const accentColor = p.severity === 'critical' ? '#f43f5e'
+                      : p.severity === 'warning' ? '#fbbf24'
+                      : p.severity === 'ok'      ? '#34d399'
+                      : '#00F5FF';
+
+                    // Mode label, banner, and icon
+                    const modeLabel  = isSurge ? 'SURGE PRICING' : isDiscount ? 'DISCOUNT' : 'STANDARD';
+                    const modeBg     = isSurge
+                      ? 'linear-gradient(90deg,rgba(244,63,94,0.20),rgba(244,63,94,0.06))'
+                      : isDiscount
+                        ? 'linear-gradient(90deg,rgba(52,211,153,0.16),rgba(52,211,153,0.04))'
+                        : 'linear-gradient(90deg,rgba(0,245,255,0.10),rgba(0,245,255,0.03))';
+                    const modeBorder = isSurge ? '#f43f5e50' : isDiscount ? '#34d39950' : '#00F5FF40';
+                    const modeColor  = isSurge ? '#f43f5e'   : isDiscount ? '#34d399'   : '#00F5FF';
+                    const ModeIcon   = isSurge ? TrendingUp  : isDiscount ? TrendingDown : CheckCircle;
+
+                    // Severity emoji label
+                    const sevEmoji   = p.severity === 'critical' ? '🔴' : p.severity === 'warning' ? '🟡' : p.severity === 'ok' ? '🟢' : '🔵';
+                    const sevLabel   = p.severity?.toUpperCase() ?? 'INFO';
+
+                    const basePrice  = 299;
                     const finalPrice = Math.round(basePrice * p.multiplier);
-                    const demandPct = p.demand ?? Math.round((1 - (p.current_bikes / p.capacity)) * 100);
+                    const priceDiff  = finalPrice - basePrice;
+                    const demandPct  = p.demand ?? Math.round((1 - (p.current_bikes / p.capacity)) * 100);
+                    const invPct     = Math.round(((p.current_bikes ?? 0) / (p.capacity || 1)) * 100);
 
                     return (
                       <motion.div
@@ -410,68 +433,129 @@ export default function Analytics() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.06, type: 'spring', stiffness: 260, damping: 22 }}
                       >
-                        <HologramCard glowColor={accentColor}>
-                          <div style={{ padding: '16px 18px' }}>
-                            {/* Station Name + Severity Badge */}
-                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-                              <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                                  <Bike size={13} color={accentColor} />
-                                  <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff' }}>{p.name}</span>
-                                </div>
-                                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-mono)' }}>
-                                  {p.current_bikes ?? '—'} / {p.capacity ?? '—'} bikes available
-                                </div>
-                              </div>
+                        <HologramCard glowColor={accentColor} style={{ overflow: 'hidden', padding: 0 }}>
+
+                          {/* ── Mode Banner (top colored strip) ── */}
+                          <div style={{
+                            background: modeBg, borderBottom: `1px solid ${modeBorder}`,
+                            padding: '9px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                              <ModeIcon size={14} color={modeColor} />
                               <span style={{
-                                padding: '3px 9px', borderRadius: 20, fontSize: '10px', fontWeight: 700,
-                                fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em',
-                                background: `${accentColor}22`, color: accentColor, border: `1px solid ${accentColor}44`,
-                              }}>
-                                {p.severity}
-                              </span>
+                                fontFamily: 'var(--font-display)', fontSize: '0.7rem',
+                                fontWeight: 800, color: modeColor, letterSpacing: '0.12em',
+                              }}>{modeLabel}</span>
+                            </div>
+                            <span style={{
+                              fontSize: '10.5px', fontWeight: 700, fontFamily: 'var(--font-mono)',
+                              color: accentColor, background: `${accentColor}1e`,
+                              border: `1px solid ${accentColor}55`, borderRadius: 20,
+                              padding: '2px 9px', letterSpacing: '0.04em',
+                            }}>{sevEmoji} {sevLabel}</span>
+                          </div>
+
+                          <div style={{ padding: '13px 16px' }}>
+
+                            {/* ── Station Name ── */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                              <Bike size={14} color={accentColor} />
+                              <span style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>{p.name}</span>
                             </div>
 
-                            {/* Demand Bar */}
-                            <div style={{ marginBottom: 14 }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Demand Level</span>
-                                <span style={{ fontSize: '11px', fontWeight: 700, color: accentColor, fontFamily: 'var(--font-mono)' }}>{demandPct}%</span>
+                            {/* ── Inventory Bar ── */}
+                            <div style={{ marginBottom: 10 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                  🚲 Bikes Available
+                                </span>
+                                <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-mono)' }}>
+                                  {p.current_bikes ?? '—'} / {p.capacity ?? '—'}
+                                </span>
                               </div>
-                              <div style={{ height: 6, background: 'rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
+                              <div style={{ height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden' }}>
                                 <motion.div
                                   initial={{ width: 0 }}
-                                  animate={{ width: `${demandPct}%` }}
-                                  transition={{ duration: 0.8, delay: idx * 0.06, ease: 'easeOut' }}
-                                  style={{ height: '100%', borderRadius: 4, background: `linear-gradient(90deg, ${accentColor}, ${accentColor}99)` }}
+                                  animate={{ width: `${invPct}%` }}
+                                  transition={{ duration: 0.8, delay: idx * 0.06 + 0.1, ease: 'easeOut' }}
+                                  style={{ height: '100%', borderRadius: 4, background: invPct < 20 ? '#f43f5e' : invPct > 80 ? '#fbbf24' : '#34d399' }}
                                 />
                               </div>
                             </div>
 
-                            {/* Price Display */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, border: `1px solid ${accentColor}20` }}>
-                              <div>
-                                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-mono)', marginBottom: 3 }}>BASE → CURRENT</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: isSurge ? 'line-through' : 'none', fontFamily: 'var(--font-mono)' }}>₹{basePrice}</span>
-                                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>→</span>
-                                  <span style={{ fontSize: '20px', fontWeight: 800, color: accentColor, fontFamily: 'var(--font-display)' }}>₹{finalPrice}</span>
-                                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ride</span>
-                                </div>
+                            {/* ── Demand Bar ── */}
+                            <div style={{ marginBottom: 14, background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '8px 11px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                                  📊 Demand Level
+                                </span>
+                                <span style={{ fontSize: '15px', fontWeight: 800, color: accentColor, fontFamily: 'var(--font-display)' }}>{demandPct}%</span>
                               </div>
-                              <div style={{
-                                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                                background: `${accentColor}15`, border: `1px solid ${accentColor}33`,
-                                borderRadius: 8, padding: '6px 10px', minWidth: 52,
-                              }}>
-                                {isSurge ? <TrendingUp size={14} color={accentColor} /> : isDiscount ? <TrendingDown size={14} color={accentColor} /> : <CheckCircle size={14} color={accentColor} />}
-                                <span style={{ fontSize: '14px', fontWeight: 800, color: accentColor, fontFamily: 'var(--font-display)', marginTop: 2 }}>{p.multiplier.toFixed(2)}x</span>
+                              <div style={{ height: 8, background: 'rgba(255,255,255,0.07)', borderRadius: 6, overflow: 'hidden' }}>
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${demandPct}%` }}
+                                  transition={{ duration: 0.9, delay: idx * 0.06, ease: 'easeOut' }}
+                                  style={{ height: '100%', borderRadius: 6, background: `linear-gradient(90deg, ${accentColor}, ${accentColor}80)` }}
+                                />
                               </div>
                             </div>
 
-                            {/* Suggestion + Reason */}
-                            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#fff', marginBottom: 4 }}>{p.suggestion}</div>
-                            <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-mono)', lineHeight: 1.5 }}>{p.reason}</div>
+                            {/* ── Price Display ── */}
+                            <div style={{
+                              background: `${modeColor}0d`, border: `1px solid ${modeBorder}`,
+                              borderRadius: 10, padding: '11px 14px', marginBottom: 12,
+                            }}>
+                              {/* Row labels */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                <span style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Base Price</span>
+                                <span style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Current Price / ride</span>
+                              </div>
+                              {/* Value row */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                {/* Base price (strikethrough when surge) */}
+                                <span style={{
+                                  fontSize: '19px', fontFamily: 'var(--font-mono)', fontWeight: 500,
+                                  color: 'rgba(255,255,255,0.30)',
+                                  textDecoration: isSurge ? 'line-through' : 'none',
+                                  textDecorationColor: '#f43f5e',
+                                }}>₹{basePrice}</span>
+
+                                <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.18)' }}>→</span>
+
+                                {/* Current price + diff */}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                  <span style={{ fontSize: '28px', fontWeight: 900, color: modeColor, fontFamily: 'var(--font-display)', lineHeight: 1 }}>₹{finalPrice}</span>
+                                  {priceDiff !== 0 && (
+                                    <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', fontWeight: 700, marginTop: 2, color: isSurge ? '#f43f5e' : '#34d399' }}>
+                                      {isSurge ? `▲ +₹${priceDiff}` : `▼ −₹${Math.abs(priceDiff)}`}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Multiplier badge */}
+                                <div style={{
+                                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                                  background: `${modeColor}18`, border: `1px solid ${modeColor}44`,
+                                  borderRadius: 8, padding: '7px 12px', marginLeft: 8,
+                                }}>
+                                  <ModeIcon size={13} color={modeColor} />
+                                  <span style={{ fontSize: '15px', fontWeight: 800, color: modeColor, fontFamily: 'var(--font-display)' }}>
+                                    {p.multiplier.toFixed(2)}×
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* ── Suggestion + Reason ── */}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '8px 11px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <Zap size={13} color={accentColor} style={{ marginTop: 2, flexShrink: 0 }} />
+                              <div>
+                                <div style={{ fontSize: '0.83rem', fontWeight: 700, color: '#fff', marginBottom: 3 }}>{p.suggestion}</div>
+                                <div style={{ fontSize: '0.71rem', color: 'rgba(255,255,255,0.42)', fontFamily: 'var(--font-mono)', lineHeight: 1.6 }}>{p.reason}</div>
+                              </div>
+                            </div>
+
                           </div>
                         </HologramCard>
                       </motion.div>
