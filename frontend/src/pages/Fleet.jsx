@@ -1,10 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import { Bike, MapPin, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
+
+// Fix Leaflet default icon paths broken by Vite's asset bundling
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+// Helper: invalidate map size after mount so tiles always render
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    setTimeout(() => map.invalidateSize(), 200);
+  }, [map]);
+  return null;
+}
 
 export default function Fleet() {
   const stations = useAppStore((s) => s.stations);
@@ -85,9 +103,10 @@ export default function Fleet() {
               style={{ height: '100%', width: '100%' }}
               zoomControl={false}
             >
+              <MapResizer />
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
               {stations.map((st) => (
                 <CircleMarker

@@ -152,9 +152,9 @@ export default function Analytics() {
             <div>
               <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 16 }}>
                 {[
-                  { label: 'Avg Daily Revenue', value: '$2,850', color: 'amber', icon: DollarSign },
+                  { label: 'Avg Daily Revenue', value: '₹2,850', color: 'amber', icon: DollarSign },
                   { label: 'Avg Daily Rides', value: datasetStats?.totalRecords ? Math.round(datasetStats.totalRecords / 731) : 450, color: 'emerald', icon: TrendingUp },
-                  { label: 'Revenue / Bike', value: '$23.75', color: 'cyan', icon: DollarSign },
+                  { label: 'Revenue / Bike', value: '₹23.75', color: 'cyan', icon: DollarSign },
                 ].map((m) => {
                   const Icon = m.icon;
                   return (
@@ -201,13 +201,13 @@ export default function Analytics() {
                             fontFamily="JetBrains Mono"
                             tickLine={false}
                             axisLine={false}
-                            tickFormatter={(v) => `$${(v/1000).toFixed(1)}k`}
+                            tickFormatter={(v) => `₹${(v/1000).toFixed(1)}k`}
                           />
                           <Tooltip
                             contentStyle={glassTooltipStyle}
                             labelStyle={{ color: '#fbbf24', fontFamily: 'JetBrains Mono', fontWeight: 700 }}
                             itemStyle={{ color: '#fbbf24' }}
-                            formatter={(val) => [`$${val.toLocaleString()}`, 'Revenue']}
+                            formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']}
                             cursor={{ fill: 'rgba(251,191,36,0.06)' }}
                           />
                           <Bar
@@ -399,8 +399,8 @@ export default function Analytics() {
                     const isSurge    = p.multiplier > 1;
                     const isDiscount = p.multiplier < 1;
                     const accentColor = p.severity === 'critical' ? '#f43f5e' : p.severity === 'warning' ? '#fbbf24' : p.severity === 'ok' ? '#34d399' : '#00F5FF';
-                    const basePrice = 3.50;
-                    const finalPrice = (basePrice * p.multiplier).toFixed(2);
+                    const basePrice = 299;
+                    const finalPrice = Math.round(basePrice * p.multiplier);
                     const demandPct = p.demand ?? Math.round((1 - (p.current_bikes / p.capacity)) * 100);
 
                     return (
@@ -453,9 +453,9 @@ export default function Analytics() {
                               <div>
                                 <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-mono)', marginBottom: 3 }}>BASE → CURRENT</div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: isSurge ? 'line-through' : 'none', fontFamily: 'var(--font-mono)' }}>${basePrice.toFixed(2)}</span>
+                                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: isSurge ? 'line-through' : 'none', fontFamily: 'var(--font-mono)' }}>₹{basePrice}</span>
                                   <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>→</span>
-                                  <span style={{ fontSize: '20px', fontWeight: 800, color: accentColor, fontFamily: 'var(--font-display)' }}>${finalPrice}</span>
+                                  <span style={{ fontSize: '20px', fontWeight: 800, color: accentColor, fontFamily: 'var(--font-display)' }}>₹{finalPrice}</span>
                                   <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ride</span>
                                 </div>
                               </div>
