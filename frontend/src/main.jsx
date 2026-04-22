@@ -50,3 +50,13 @@ createRoot(document.getElementById('root')).render(
     </ClerkErrorBoundary>
   </StrictMode>
 );
+
+// PWA Service Worker Registration
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then(() => console.log("SW registered ✅"))
+      .catch((err) => console.log("SW failed:", err));
+  });
+}
