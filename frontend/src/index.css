@@ -770,6 +770,39 @@ a:hover { text-decoration: underline; }
 
 .input::placeholder { color: var(--text-muted); }
 
+/* ─── Range Slider (HourlyDemandForecaster) ──────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00F5FF;
+  border: 2px solid rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px #00F5FF, 0 0 20px rgba(0,245,255,0.4);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00F5FF;
+  border: 2px solid rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px #00F5FF, 0 0 20px rgba(0,245,255,0.4);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 18px #00F5FF, 0 0 36px rgba(0,245,255,0.6);
+  transform: scale(1.15);
+}
+
 .input-icon-wrapper { position: relative; }
 
 .input-icon-wrapper svg {

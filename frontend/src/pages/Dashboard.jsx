@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
+import HourlyDemandForecaster from '../components/HourlyDemandForecaster';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -312,6 +313,34 @@ export default function Dashboard() {
                 ))}
               </AnimatePresence>
             </div>
+          </div>
+        </HologramCard>
+      </motion.div>
+
+      {/* ── Hourly Demand Forecaster ────────────────────────────────── */}
+      <motion.div variants={itemVariants}>
+        <HologramCard glowColor="#8B5CF6" style={{ overflow: 'hidden' }}>
+          <div className="card-header" style={{ borderBottom: '1px solid rgba(139,92,246,0.1)' }}>
+            <div>
+              <div className="card-title" style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.8rem',
+                letterSpacing: '0.06em',
+                background: 'linear-gradient(90deg, #8B5CF6, #00F5FF)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                ⏱️ HOURLY DEMAND FORECASTER
+              </div>
+              <div className="card-subtitle" style={{ marginTop: 2 }}>
+                Select any hour · Adjust season, weather & day type · Instant demand prediction
+              </div>
+            </div>
+            <span className="badge violet">ML Core Active</span>
+          </div>
+          <div className="card-body" style={{ padding: '20px 24px' }}>
+            <HourlyDemandForecaster />
           </div>
         </HologramCard>
       </motion.div>
