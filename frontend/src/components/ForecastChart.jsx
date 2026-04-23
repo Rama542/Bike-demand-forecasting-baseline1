@@ -63,8 +63,8 @@ function DailyRevenueChart() {
       {/* Revenue KPI Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
         {[
-          { label: '30-Day Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#fbbf24', glow: '#fbbf2440' },
-          { label: 'Avg Daily Revenue', value: `$${avgRevenue.toLocaleString()}`, icon: TrendingUp, color: '#34d399', glow: '#34d39940' },
+          { label: '30-Day Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: DollarSign, color: '#fbbf24', glow: '#fbbf2440' },
+          { label: 'Avg Daily Revenue', value: `₹${avgRevenue.toLocaleString('en-IN')}`, icon: TrendingUp, color: '#34d399', glow: '#34d39940' },
           { label: 'Total Rides', value: totalRides.toLocaleString(), icon: Bike, color: '#00F5FF', glow: '#00F5FF40' },
         ].map((m) => {
           const Icon = m.icon;
@@ -121,7 +121,7 @@ function DailyRevenueChart() {
               fontFamily="JetBrains Mono"
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+              tickFormatter={(v) => `₹${(v / 1000).toFixed(1)}k`}
             />
             <YAxis
               yAxisId="rides"
@@ -134,7 +134,7 @@ function DailyRevenueChart() {
             />
             <Tooltip
               {...TOOLTIP_STYLE}
-              formatter={(val, name) => name === 'Revenue ($)' ? [`$${val.toLocaleString()}`, 'Revenue'] : [val.toLocaleString(), 'Rides']}
+              formatter={(val, name) => name === 'Revenue (₹)' ? [`₹${val.toLocaleString('en-IN')}`, 'Revenue'] : [val.toLocaleString(), 'Rides']}
             />
             <Legend
               wrapperStyle={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'JetBrains Mono' }}
@@ -143,7 +143,7 @@ function DailyRevenueChart() {
               yAxisId="revenue"
               type="monotone"
               dataKey="revenue"
-              name="Revenue ($)"
+              name="Revenue (₹)"
               stroke="#fbbf24"
               fill="url(#revenueGrad)"
               strokeWidth={2.5}
@@ -551,7 +551,7 @@ export default function ForecastChart() {
         fontFamily: 'var(--font-mono)',
       }}>
         <span style={{ color: activeView === 'revenue' ? '#fbbf24' : '#8B5CF6' }}>●</span>
-        <span>{activeView === 'revenue' ? 'Revenue based on $3.50/ride avg price' : 'ML Demand predictions with moving average'}</span>
+        <span>{activeView === 'revenue' ? 'Revenue based on ₹280/ride avg price' : 'ML Demand predictions with moving average'}</span>
         <span style={{ marginLeft: 'auto' }}>Auto-refreshes every 30s</span>
       </div>
     </div>

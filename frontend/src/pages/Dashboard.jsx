@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { predictDemand, getRebalancing } from '../lib/api';
 import { fetchDailyRevenue } from '../services/api';
-import { Bike, Users, TrendingUp, DollarSign, ArrowUp, ArrowDown, MapPin } from 'lucide-react';
+import { Bike, Users, TrendingUp, IndianRupee, ArrowUp, ArrowDown, MapPin } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend,
@@ -34,12 +34,11 @@ export default function Dashboard() {
     if (stations.length > 0) {
       getRebalancing(stations).then((d) => setRebalanceRecs(d.recommendations || [])).catch(() => { });
     }
-    // Load daily revenue chart data
     setRevLoading(true);
     fetchDailyRevenue()
       .then((res) => {
         const formatted = res.date.map((d, i) => ({
-          date: String(d).slice(5), // MM-DD
+          date: String(d).slice(5),
           revenue: res.revenue[i],
           rides: res.rides?.[i] || 0,
         }));
@@ -60,7 +59,7 @@ export default function Dashboard() {
     { label: 'Available Bikes', value: totalBikes, icon: Bike, color: 'cyan', change: '+4', up: true },
     { label: 'Active Rides', value: activeBikes || Math.round(totalBikes * 0.35), icon: Users, color: 'emerald', change: '+12%', up: true },
     { label: 'Predicted (1hr)', value: predictions?.['1_hour'] || forecast[0] || '—', icon: TrendingUp, color: 'violet', change: '+8%', up: true },
-    { label: 'Revenue Today', value: `Rs.${Math.round(liveRevenue?.daily || 2450)}`, icon: DollarSign, color: 'amber', change: '+5.2%', up: true },
+    { label: 'Revenue Today', value: `₹${Math.round(liveRevenue?.daily || 2450).toLocaleString('en-IN')}`, icon: IndianRupee, color: 'amber', change: '+5.2%', up: true },
   ];
 
   const containerVariants = {
@@ -126,7 +125,42 @@ export default function Dashboard() {
         })}
       </motion.div>
 
-      {/* Main Grid: Chart + Map */}
+      {/* ── Hourly Demand Forecaster — placed prominently below KPI cards ── */}
+      <motion.div variants={itemVariants}>
+        <HologramCard glowColor="#8B5CF6" style={{ overflow: 'visible' }}>
+          <div className="card-header" style={{ borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
+            <div>
+              <div className="card-title" style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.82rem',
+                letterSpacing: '0.06em',
+                background: 'linear-gradient(90deg, #8B5CF6, #00F5FF)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                ⏱️ HOURLY DEMAND FORECASTER
+              </div>
+              <div className="card-subtitle" style={{ marginTop: 3 }}>
+                Pick any hour — see predicted bike demand instantly · Powered by UCI dataset (17,379 records)
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span className="badge violet">ML Core Active</span>
+              <span style={{
+                fontSize: 9, fontFamily: 'var(--font-mono)', color: 'rgba(139,92,246,0.6)',
+                background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)',
+                borderRadius: 6, padding: '2px 8px',
+              }}>LIVE</span>
+            </div>
+          </div>
+          <div className="card-body" style={{ padding: '20px 24px' }}>
+            <HourlyDemandForecaster />
+          </div>
+        </HologramCard>
+      </motion.div>
+
+      {/* Main Grid: Demand Chart + Map */}
       <motion.div variants={itemVariants} className="dashboard-grid grid-8-4">
         {/* Demand Chart */}
         <HologramCard style={{ overflow: 'hidden' }}>
@@ -178,7 +212,7 @@ export default function Dashboard() {
           </div>
         </HologramCard>
 
-        {/* 3D Map */}
+        {/* Station Map */}
         <HologramCard style={{ overflow: 'hidden', padding: 0, position: 'relative' }}>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
             <div style={{
@@ -212,20 +246,11 @@ export default function Dashboard() {
                       key={`dash-st-${st.id}`}
                       center={[st.lat, st.lng]}
                       radius={6}
-                      pathOptions={{
-                        fillColor: color,
-                        color: color,
-                        fillOpacity: 0.2,
-                        weight: 2,
-                      }}
+                      pathOptions={{ fillColor: color, color: color, fillOpacity: 0.2, weight: 2 }}
                     >
                       <Popup>
-                        <div style={{ color: '#00F5FF', fontSize: 12, fontWeight: 700 }}>
-                          {st.name}
-                        </div>
-                        <div style={{ color: '#fff', fontSize: 11, marginTop: 4 }}>
-                          Bikes: {st.current_bikes} / {st.capacity}
-                        </div>
+                        <div style={{ color: '#00F5FF', fontSize: 12, fontWeight: 700 }}>{st.name}</div>
+                        <div style={{ color: '#fff', fontSize: 11, marginTop: 4 }}>Bikes: {st.current_bikes} / {st.capacity}</div>
                       </Popup>
                     </CircleMarker>
                   );
@@ -317,35 +342,7 @@ export default function Dashboard() {
         </HologramCard>
       </motion.div>
 
-      {/* ── Hourly Demand Forecaster ────────────────────────────────── */}
-      <motion.div variants={itemVariants}>
-        <HologramCard glowColor="#8B5CF6" style={{ overflow: 'hidden' }}>
-          <div className="card-header" style={{ borderBottom: '1px solid rgba(139,92,246,0.1)' }}>
-            <div>
-              <div className="card-title" style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.8rem',
-                letterSpacing: '0.06em',
-                background: 'linear-gradient(90deg, #8B5CF6, #00F5FF)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                ⏱️ HOURLY DEMAND FORECASTER
-              </div>
-              <div className="card-subtitle" style={{ marginTop: 2 }}>
-                Select any hour · Adjust season, weather & day type · Instant demand prediction
-              </div>
-            </div>
-            <span className="badge violet">ML Core Active</span>
-          </div>
-          <div className="card-body" style={{ padding: '20px 24px' }}>
-            <HourlyDemandForecaster />
-          </div>
-        </HologramCard>
-      </motion.div>
-
-      {/* ── Daily Revenue Graph (always visible) ──────────────────── */}
+      {/* Daily Revenue Graph */}
       <motion.div variants={itemVariants}>
         <HologramCard glowColor="#fbbf24" style={{ overflow: 'hidden' }}>
           <div className="card-header" style={{ borderBottom: '1px solid rgba(251,191,36,0.1)' }}>
@@ -361,7 +358,7 @@ export default function Dashboard() {
               }}>
                 💰 DAILY REVENUE — LAST 30 DAYS
               </div>
-              <div className="card-subtitle">Revenue &amp; ride count from dataset · $3.50 avg per ride</div>
+              <div className="card-subtitle">Revenue &amp; ride count from dataset · ₹280 avg per ride</div>
             </div>
             <span className="badge amber">Live Data</span>
           </div>
@@ -389,29 +386,22 @@ export default function Dashboard() {
                     <XAxis
                       dataKey="date"
                       stroke="rgba(255,255,255,0.2)"
-                      fontSize={9}
-                      fontFamily="JetBrains Mono"
-                      tickLine={false}
-                      axisLine={false}
-                      interval={4}
+                      fontSize={9} fontFamily="JetBrains Mono"
+                      tickLine={false} axisLine={false} interval={4}
                     />
                     <YAxis
                       yAxisId="rev"
                       stroke="rgba(255,255,255,0.15)"
-                      fontSize={9}
-                      fontFamily="JetBrains Mono"
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+                      fontSize={9} fontFamily="JetBrains Mono"
+                      tickLine={false} axisLine={false}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(1)}k`}
                     />
                     <YAxis
                       yAxisId="rides"
                       orientation="right"
                       stroke="rgba(255,255,255,0.1)"
-                      fontSize={9}
-                      fontFamily="JetBrains Mono"
-                      tickLine={false}
-                      axisLine={false}
+                      fontSize={9} fontFamily="JetBrains Mono"
+                      tickLine={false} axisLine={false}
                     />
                     <Tooltip
                       contentStyle={{
@@ -423,8 +413,8 @@ export default function Dashboard() {
                         backdropFilter: 'blur(20px)',
                       }}
                       labelStyle={{ color: '#fbbf24', fontFamily: 'JetBrains Mono', fontWeight: 700 }}
-                      formatter={(val, name) => name === 'Revenue ($)'
-                        ? [`$${val.toLocaleString()}`, 'Revenue']
+                      formatter={(val, name) => name === 'Revenue (₹)'
+                        ? [`₹${val.toLocaleString('en-IN')}`, 'Revenue']
                         : [val.toLocaleString(), 'Rides']}
                     />
                     <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: 'JetBrains Mono' }} />
@@ -432,7 +422,7 @@ export default function Dashboard() {
                       yAxisId="rev"
                       type="monotone"
                       dataKey="revenue"
-                      name="Revenue ($)"
+                      name="Revenue (₹)"
                       stroke="#fbbf24"
                       fill="url(#dashRevGrad)"
                       strokeWidth={2.5}
