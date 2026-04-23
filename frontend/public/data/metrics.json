@@ -1,0 +1,8 @@
+{
+  "mae_ma": 950.7,
+  "mae_naive": 1587.7,
+  "rmse_ma": 1294.8,
+  "improvement_pct": 40.1,
+  "total_rides": 3292679,
+  "total_records": 731
+}

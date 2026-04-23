@@ -61,14 +61,14 @@ export const useAppStore = create((set, get) => ({
     } catch (e) { console.error('Failed to load dataset stats', e); }
   },
 
-  // ─── Real-time Updates ───────────────────────────────────
+  // ─── Real-time Updates (gracefully handles no WebSocket) ─
   initLiveUpdates: () => {
     const socket = getSocket();
 
     socket.on('system_update', (data) => {
       if (data.stations) set({ stations: data.stations });
-      if (data.weather) set({ weather: data.weather });
-      if (data.bikes) set({ bikes: data.bikes });
+      if (data.weather)  set({ weather: data.weather });
+      if (data.bikes)    set({ bikes: data.bikes });
       if (data.alert) {
         const alert = {
           id: Date.now().toString(),
@@ -79,9 +79,7 @@ export const useAppStore = create((set, get) => ({
         };
         set((s) => ({ alerts: [alert, ...s.alerts].slice(0, 50) }));
       }
-      if (data.revenue) {
-        set({ liveRevenue: data.revenue });
-      }
+      if (data.revenue) set({ liveRevenue: data.revenue });
     });
 
     socket.on('demand_prediction', (data) => {
@@ -113,6 +111,6 @@ export const useAppStore = create((set, get) => ({
   chatMessages: [],
   addChatMessage: (msg) => set((s) => ({ chatMessages: [...s.chatMessages, msg] })),
 
-  // ─── Live Revenue ────────────────────────────────────────
+  // ─── Live Revenue (loaded from real revenue.json on startup) ─
   liveRevenue: { daily: 4850, hourly_rate: 202, rides_count: 312 },
 }));
