@@ -13,11 +13,11 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 export default function Dashboard() {
-  const stations     = useAppStore((s) => s.stations);
-  const bikes        = useAppStore((s) => s.bikes);
-  const alerts       = useAppStore((s) => s.alerts);
-  const predictions  = useAppStore((s) => s.predictions);
-  const liveRevenue  = useAppStore((s) => s.liveRevenue);
+  const stations = useAppStore((s) => s.stations);
+  const bikes = useAppStore((s) => s.bikes);
+  const alerts = useAppStore((s) => s.alerts);
+  const predictions = useAppStore((s) => s.predictions);
+  const liveRevenue = useAppStore((s) => s.liveRevenue);
   const datasetStats = useAppStore((s) => s.datasetStats);
 
   const [forecast, setForecast] = useState([]);
@@ -25,13 +25,13 @@ export default function Dashboard() {
   const [revenueChartData, setRevenueChartData] = useState([]);
   const [revLoading, setRevLoading] = useState(true);
 
-  const totalBikes  = stations.reduce((a, s) => a + (s.current_bikes || 0), 0);
+  const totalBikes = stations.reduce((a, s) => a + (s.current_bikes || 0), 0);
   const activeBikes = bikes.filter((b) => b.status === 'in-use').length;
 
   useEffect(() => {
-    predictDemand([]).then((d) => setForecast(d.forecast || [])).catch(() => {});
+    predictDemand([]).then((d) => setForecast(d.forecast || [])).catch(() => { });
     if (stations.length > 0) {
-      getRebalancing(stations).then((d) => setRebalanceRecs(d.recommendations || [])).catch(() => {});
+      getRebalancing(stations).then((d) => setRebalanceRecs(d.recommendations || [])).catch(() => { });
     }
     // Load daily revenue chart data
     setRevLoading(true);
@@ -44,7 +44,7 @@ export default function Dashboard() {
         }));
         setRevenueChartData(formatted);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setRevLoading(false));
   }, [stations]);
 
@@ -59,7 +59,7 @@ export default function Dashboard() {
     { label: 'Available Bikes', value: totalBikes, icon: Bike, color: 'cyan', change: '+4', up: true },
     { label: 'Active Rides', value: activeBikes || Math.round(totalBikes * 0.35), icon: Users, color: 'emerald', change: '+12%', up: true },
     { label: 'Predicted (1hr)', value: predictions?.['1_hour'] || forecast[0] || '—', icon: TrendingUp, color: 'violet', change: '+8%', up: true },
-    { label: 'Revenue Today', value: `$${Math.round(liveRevenue?.daily || 2450)}`, icon: DollarSign, color: 'amber', change: '+5.2%', up: true },
+    { label: 'Revenue Today', value: `Rs.${Math.round(liveRevenue?.daily || 2450)}`, icon: DollarSign, color: 'amber', change: '+5.2%', up: true },
   ];
 
   const containerVariants = {
@@ -144,11 +144,11 @@ export default function Dashboard() {
                 <AreaChart data={hourlyData.length > 0 ? hourlyData : generateMockHourlyData()}>
                   <defs>
                     <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#00F5FF" stopOpacity={0.5} />
+                      <stop offset="5%" stopColor="#00F5FF" stopOpacity={0.5} />
                       <stop offset="95%" stopColor="#00F5FF" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="violetGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#8B5CF6" stopOpacity={0.45} />
+                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.45} />
                       <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -348,11 +348,11 @@ export default function Dashboard() {
                   <AreaChart data={revenueChartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="dashRevGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#fbbf24" stopOpacity={0.55} />
+                        <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.55} />
                         <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="dashRidesGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#00F5FF" stopOpacity={0.3} />
+                        <stop offset="5%" stopColor="#00F5FF" stopOpacity={0.3} />
                         <stop offset="95%" stopColor="#00F5FF" stopOpacity={0} />
                       </linearGradient>
                     </defs>
