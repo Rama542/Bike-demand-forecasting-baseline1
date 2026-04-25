@@ -6,7 +6,7 @@
  */
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 
@@ -43,6 +43,13 @@ function PublicRoute({ children }) {
   return children;
 }
 
+// Wrapper that reads Clerk state and passes it as props to Settings
+function ClerkSettings() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  return <Settings clerkUser={user} onSignOut={() => signOut({ redirectUrl: '/login' })} />;
+}
+
 export default function ClerkAppRoutes() {
   return (
     <Suspense fallback={<Loading />}>
@@ -53,7 +60,7 @@ export default function ClerkAppRoutes() {
         <Route path="/fleet"     element={<ProtectedRoute><Fleet /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/ai"        element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
-        <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/settings"  element={<ProtectedRoute><ClerkSettings /></ProtectedRoute>} />
         <Route path="*"          element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>

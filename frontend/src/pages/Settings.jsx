@@ -1,12 +1,14 @@
-import { useClerk, useUser } from '@clerk/clerk-react';
+/**
+ * Settings.jsx — Works in BOTH Clerk mode and Demo mode
+ * -------------------------------------------------------
+ * Does NOT directly import useClerk/useUser at module level.
+ * Instead, accepts optional props so DemoApp can render it safely.
+ */
 import { User, Bell, Server, LogOut } from 'lucide-react';
 
-export default function Settings() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
-
-  const email = user?.primaryEmailAddress?.emailAddress || '';
-  const displayName = user?.fullName || user?.firstName || email.split('@')[0] || '';
+export default function Settings({ clerkUser = null, onSignOut = null }) {
+  const email = clerkUser?.primaryEmailAddress?.emailAddress || 'demo@veloai.app';
+  const displayName = clerkUser?.fullName || clerkUser?.firstName || email.split('@')[0] || 'Demo User';
 
   return (
     <div className="animate-in">
@@ -62,7 +64,7 @@ export default function Settings() {
           <div className="card-body">
             <div className="form-group" style={{ marginBottom: '14px' }}>
               <label className="form-label">Backend API URL</label>
-              <input className="input" value={import.meta.env.VITE_API_URL || 'http://localhost:5000/api'} readOnly />
+              <input className="input" value={import.meta.env.VITE_API_URL || '/api'} readOnly />
             </div>
             <div className="form-group" style={{ marginBottom: '14px' }}>
               <label className="form-label">Supabase URL</label>
@@ -75,14 +77,25 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Sign Out */}
-        <button
-          className="btn btn-secondary"
-          onClick={() => signOut({ redirectUrl: '/login' })}
-          style={{ color: 'var(--rose)', borderColor: 'rgba(244, 63, 94, 0.3)', gap: '8px' }}
-        >
-          <LogOut size={16} /> Sign Out
-        </button>
+        {/* Sign Out — only shown in Clerk mode */}
+        {onSignOut ? (
+          <button
+            className="btn btn-secondary"
+            onClick={onSignOut}
+            style={{ color: 'var(--rose)', borderColor: 'rgba(244, 63, 94, 0.3)', gap: '8px' }}
+          >
+            <LogOut size={16} /> Sign Out
+          </button>
+        ) : (
+          <div className="card" style={{ borderColor: 'rgba(0,245,196,0.2)' }}>
+            <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="status-dot online" />
+              <span style={{ fontSize: '0.8rem', color: 'var(--cyan)' }}>
+                Running in <strong>Demo Mode</strong> — all features available without login
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
