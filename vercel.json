@@ -3,10 +3,8 @@
   "outputDirectory": "frontend/dist",
   "installCommand": "echo skip",
   "framework": null,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
