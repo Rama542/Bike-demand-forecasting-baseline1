@@ -2,6 +2,6 @@
   "name": "veloai-deployment",
   "private": true,
   "scripts": {
-    "build": "node preprocess-data.js && cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && rm -rf public && mv frontend/dist public"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && rm -rf public && cp -r frontend/dist public"
   }
 }

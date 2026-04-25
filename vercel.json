@@ -1,4 +1,8 @@
 {
+  "buildCommand": "node preprocess-data.js && cd frontend && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "echo skip",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
