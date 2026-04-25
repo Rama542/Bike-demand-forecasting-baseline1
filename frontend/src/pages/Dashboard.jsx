@@ -10,6 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import HologramCard from '../components/HologramCard';
 import HourlyDemandForecaster from '../components/HourlyDemandForecaster';
+import LiveDemandPanel from '../components/LiveDemandPanel';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -125,7 +126,50 @@ export default function Dashboard() {
         })}
       </motion.div>
 
-      {/* ── Hourly Demand Forecaster — placed prominently below KPI cards ── */}
+      {/* ── LIVE Demand Forecast — real Bangalore weather + ML predictions ── */}
+      <motion.div variants={itemVariants}>
+        <HologramCard glowColor="#00F5FF" style={{ overflow: 'visible' }}>
+          <div className="card-header" style={{ borderBottom: '1px solid rgba(0,245,255,0.10)' }}>
+            <div>
+              <div className="card-title" style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.82rem',
+                letterSpacing: '0.06em',
+                background: 'linear-gradient(90deg, #00F5FF, #34d399)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                🌐 LIVE DEMAND FORECAST
+              </div>
+              <div className="card-subtitle" style={{ marginTop: 3 }}>
+                Real Bangalore weather · OpenMeteo API · ML predictions updated every 10 min
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span className="badge emerald">Real Weather</span>
+              <span style={{
+                fontSize: 9, fontFamily: 'var(--font-mono)', color: '#00F5FF',
+                background: 'rgba(0,245,255,0.10)', border: '1px solid rgba(0,245,255,0.30)',
+                borderRadius: 6, padding: '2px 10px', letterSpacing: '0.1em',
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}>
+                <span style={{
+                  width: 5, height: 5, borderRadius: '50%',
+                  background: '#00F5FF', boxShadow: '0 0 6px #00F5FF',
+                  display: 'inline-block',
+                }} />
+                LIVE
+              </span>
+            </div>
+          </div>
+          <div className="card-body" style={{ padding: '20px 24px' }}>
+            <LiveDemandPanel />
+          </div>
+        </HologramCard>
+      </motion.div>
+
+      {/* ── Hourly Demand Forecaster — interactive what-if scenario tool ── */}
       <motion.div variants={itemVariants}>
         <HologramCard glowColor="#8B5CF6" style={{ overflow: 'visible' }}>
           <div className="card-header" style={{ borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
@@ -139,19 +183,14 @@ export default function Dashboard() {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}>
-                ⏱️ HOURLY DEMAND FORECASTER
+                ⏱️ WHAT-IF SCENARIO PLANNER
               </div>
               <div className="card-subtitle" style={{ marginTop: 3 }}>
-                Pick any hour — see predicted bike demand instantly · Powered by UCI dataset (17,379 records)
+                Simulate any hour, season &amp; weather — explore demand scenarios · UCI dataset (17,379 records)
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span className="badge violet">ML Core Active</span>
-              <span style={{
-                fontSize: 9, fontFamily: 'var(--font-mono)', color: 'rgba(139,92,246,0.6)',
-                background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)',
-                borderRadius: 6, padding: '2px 8px',
-              }}>LIVE</span>
+              <span className="badge violet">ML Core</span>
             </div>
           </div>
           <div className="card-body" style={{ padding: '20px 24px' }}>
