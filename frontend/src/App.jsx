@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@clerk/clerk-react';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 
@@ -24,44 +23,32 @@ function Loading() {
   );
 }
 
-// ── Route guards when Clerk IS available ─────────────────────────────────────
+// Lazy-loaded Clerk guards — only imported/evaluated when Clerk is available.
+// This prevents useAuth() from running without a ClerkProvider in the tree.
+const ClerkAppRoutes = lazy(() => import('./ClerkAppRoutes'));
 
-function ProtectedRoute({ children }) {
-  const { isLoaded, userId } = useAuth();
-  if (!isLoaded) return <Loading />;
-  if (!userId) return <Navigate to="/login" replace />;
-  return <MainLayout>{children}</MainLayout>;
-}
-
-function PublicRoute({ children }) {
-  const { isLoaded, userId } = useAuth();
-  if (!isLoaded) return <Loading />;
-  if (userId) return <Navigate to="/" replace />;
-  return children;
-}
-
-// ── Route guards when Clerk FAILED (no ClerkProvider in tree) ────────────────
-// Never touch useAuth() here — no provider means hook would throw.
-
-function ProtectedRouteNoClerk({ children }) {
-  // Clerk is unavailable (dev key on production domain) → allow access freely
-  // The app has full mock data fallbacks so it works without auth
-  return <MainLayout>{children}</MainLayout>;
-}
-
-function PublicRouteNoClerk({ children }) {
-  // When Clerk is down, redirect login page straight to dashboard
-  return <Navigate to="/" replace />;
+// ── Demo / No-Auth routes (used when Clerk key is unavailable on production) ──
+function DemoAppRoutes() {
+  return (
+    <Routes>
+      {/* In demo mode, login/sign-up redirect straight to the dashboard */}
+      <Route path="/login"    element={<Navigate to="/" replace />} />
+      <Route path="/sign-up"  element={<Navigate to="/" replace />} />
+      {/* All protected pages are accessible without auth */}
+      <Route path="/"          element={<MainLayout><Dashboard /></MainLayout>} />
+      <Route path="/fleet"     element={<MainLayout><Fleet /></MainLayout>} />
+      <Route path="/analytics" element={<MainLayout><Analytics /></MainLayout>} />
+      <Route path="/ai"        element={<MainLayout><AIAssistant /></MainLayout>} />
+      <Route path="/settings"  element={<MainLayout><Settings /></MainLayout>} />
+      <Route path="*"          element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App({ clerkFailed = false }) {
   const [introComplete] = useState(true);
-
-  // Choose the right guard set based on whether Clerk initialised
-  const Protected = clerkFailed ? ProtectedRouteNoClerk : ProtectedRoute;
-  const Public    = clerkFailed ? PublicRouteNoClerk    : PublicRoute;
 
   return (
     <AnimatePresence>
@@ -74,16 +61,10 @@ export default function App({ clerkFailed = false }) {
           style={{ width: '100%', height: '100%' }}
         >
           <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route path="/login"    element={<Public><Login /></Public>} />
-              <Route path="/sign-up"  element={<Public><Login isSignUp /></Public>} />
-              <Route path="/"          element={<Protected><Dashboard /></Protected>} />
-              <Route path="/fleet"     element={<Protected><Fleet /></Protected>} />
-              <Route path="/analytics" element={<Protected><Analytics /></Protected>} />
-              <Route path="/ai"        element={<Protected><AIAssistant /></Protected>} />
-              <Route path="/settings"  element={<Protected><Settings /></Protected>} />
-              <Route path="*"          element={<Navigate to="/login" replace />} />
-            </Routes>
+            {clerkFailed
+              ? <DemoAppRoutes />
+              : <ClerkAppRoutes />
+            }
           </Suspense>
         </motion.div>
       )}
