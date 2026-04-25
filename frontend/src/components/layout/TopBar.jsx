@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../stores/appStore';
-import { UserButton } from '@clerk/clerk-react';
-import { Bell, Sun, Cloud, CloudRain, Zap } from 'lucide-react';
+import { Bell, Sun, Cloud, CloudRain, Zap, User } from 'lucide-react';
 
 const weatherIcons = { clear: Sun, cloudy: Cloud, rain: CloudRain };
 
@@ -18,6 +17,22 @@ function HUDClock() {
     return () => clearInterval(id);
   }, []);
   return <span className="hud-clock">{time}</span>;
+}
+
+// Simple avatar used in demo / no-auth mode
+function DemoAvatar() {
+  return (
+    <div style={{
+      width: 34, height: 34, borderRadius: '50%',
+      background: 'linear-gradient(135deg, #00F5FF, #8B5CF6)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      border: '1px solid rgba(0,245,255,0.3)',
+      boxShadow: '0 0 12px rgba(0,245,255,0.2)',
+      cursor: 'pointer',
+    }}>
+      <User size={16} style={{ color: '#fff' }} />
+    </div>
+  );
 }
 
 export default function TopBar() {
@@ -147,9 +162,9 @@ export default function TopBar() {
           </AnimatePresence>
         </div>
 
-        {/* Avatar */}
+        {/* Avatar — works with or without Clerk */}
         <div style={{ marginLeft: 8 }}>
-          <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 34, height: 34 } } }} />
+          <DemoAvatar />
         </div>
       </div>
     </div>

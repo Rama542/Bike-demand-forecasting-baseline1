@@ -43,13 +43,15 @@ function PublicRoute({ children }) {
 // ── Route guards when Clerk FAILED (no ClerkProvider in tree) ────────────────
 // Never touch useAuth() here — no provider means hook would throw.
 
-function ProtectedRouteNoClerk() {
-  // Clerk is down → treat as not logged-in → force /login
-  return <Navigate to="/login" replace />;
+function ProtectedRouteNoClerk({ children }) {
+  // Clerk is unavailable (dev key on production domain) → allow access freely
+  // The app has full mock data fallbacks so it works without auth
+  return <MainLayout>{children}</MainLayout>;
 }
 
 function PublicRouteNoClerk({ children }) {
-  return children; // Show the public page (login/signup) freely
+  // When Clerk is down, redirect login page straight to dashboard
+  return <Navigate to="/" replace />;
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
