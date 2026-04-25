@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../stores/appStore';
 import {
   LayoutDashboard, Map, BarChart3, Bot, Settings,
-  Bike, ChevronLeft, ChevronRight, LogOut,
+  Bike, ChevronLeft, ChevronRight, LogOut, User,
 } from 'lucide-react';
-import { UserButton, useClerk, useUser } from '@clerk/clerk-react';
+
+// No @clerk/clerk-react imports — this component must work in BOTH
+// Clerk mode and demo mode (no ClerkProvider in the tree).
 
 const navItems = [
   { path: '/',          label: 'Dashboard',   icon: LayoutDashboard, section: 'overview' },
@@ -21,13 +23,34 @@ const sections = [
   { key: 'system',        label: 'System' },
 ];
 
+// Simple avatar that works without Clerk
+function DemoAvatar() {
+  return (
+    <div style={{
+      width: 32, height: 32, borderRadius: '50%',
+      background: 'linear-gradient(135deg, #00F5FF, #8B5CF6)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      border: '1px solid rgba(0,245,255,0.3)',
+      boxShadow: '0 0 10px rgba(0,245,255,0.2)',
+      flexShrink: 0,
+    }}>
+      <User size={14} style={{ color: '#fff' }} />
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const location  = useLocation();
   const navigate  = useNavigate();
   const collapsed = useAppStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const logout = useAppStore((s) => s.logout);
+  const appUser = useAppStore((s) => s.user);
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -127,14 +150,17 @@ export default function Sidebar() {
             animate={{ rotate: collapsed ? 0 : 180 }}
             transition={{ duration: 0.3 }}
           >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {collapsed
+              ? <ChevronRight size={18} />
+              : <ChevronLeft size={18} />
+            }
           </motion.div>
           {!collapsed && <span className="nav-label">Collapse</span>}
         </motion.button>
 
         <motion.button
           className="nav-item"
-          onClick={() => signOut({ redirectUrl: '/login' })}
+          onClick={handleSignOut}
           title="Sign out"
           style={{ color: 'var(--rose)' }}
           whileHover={{ x: 3 }}
@@ -160,14 +186,16 @@ export default function Sidebar() {
                 color: 'var(--text-muted)',
               }}
             >
-              <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
-              <span style={{ fontFamily: 'var(--font-mono)' }}>{user?.primaryEmailAddress?.emailAddress}</span>
+              <DemoAvatar />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', opacity: 0.7 }}>
+                {appUser?.email || 'demo@veloai.app'}
+              </span>
             </motion.div>
           )}
           {collapsed && (
-             <motion.div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
-                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
-             </motion.div>
+            <motion.div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
+              <DemoAvatar />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
